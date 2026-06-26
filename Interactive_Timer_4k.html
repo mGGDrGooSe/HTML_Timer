@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleek Stream Dashboard Overlay - 4K High Fidelity</title>
+    <style>
+        /* ==========================================================================
+           1. 4K DESIGN & TYPOGRAPHY CONFIGURATION BLOCK (:root)
+           ========================================================================== */
+        :root {
+            /* --- VISUAL ELEMENT COLOURS & SURFACES --- */
+            --bg-glass: rgba(15, 23, 42, 0.65);
+            --text-color: #FFFFFF;
+            --drop-shadow-color: rgba(0, 0, 0, 0.65);
+            --border-glow: rgba(255, 255, 255, 0.12);
+
+            /* Dynamic Engine State Colors */
+            --focus-color: #EF4444;        
+            --short-break-color: #10B981;  
+            --long-break-color: #3B82F6;   
+            
+            /* --- 4K ENLARGED FONTS & TYPOGRAPHY --- */
+            --font-family: 'Consolas', 'Roboto', 'Segoe UI', system-ui, sans-serif;
+
+            /* Scaled up significantly for 4K crispness */
+            --size-clock: 44px;
+            --size-date: 28px;
+            --size-weather: 28px;
+            --size-timer: 160px;
+            --size-label: 36px;
+            --size-counter: 26px;
+            --size-buttons: 22px;
+            --size-inputs: 24px;
+            
+            /* --- SHADOWS & DEPTH --- */
+            --text-shadow: 4px 4px 15px var(--drop-shadow-color);
+            --box-shadow: 0 24px 80px 0 rgba(0, 0, 0, 0.6);
+        }
+
+        /* Base Setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: transparent;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100vw; /* Adapts dynamically to OBS window size instead of hard-breaking */
+            overflow: hidden;
+            perspective: 2000px;
+        }
+
+        /* ==========================================================================
+           2. POLYMORPHIC SHAPE ENGINE (4K UPGRADED DIMENSIONS)
+           ========================================================================== */
+        .widget-frame {
+            background: var(--bg-glass);
+            border: 2px solid var(--border-glow);
+            box-shadow: var(--box-shadow);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px;
+            text-align: center;
+        }
+
+        /* Doubled canvas footprint dimensions for ultra fidelity */
+        .shape-quadrilateral {
+            border-radius: 48px;
+            width: 880px;
+            height: auto;
+            min-height: 1040px;
+        }
+
+        .shape-circle {
+            border-radius: 50%;
+            width: 1040px;
+            height: 1040px;
+        }
+
+        .shape-ellipse {
+            border-radius: 50%;
+            width: 1160px;
+            height: 960px;
+        }
+
+        .shape-triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            width: 1200px;
+            height: 1120px;
+            padding-top: 260px; 
+        }
+
+        /* --- System Utilities Header Bar --- */
+        .system-bar {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            text-shadow: var(--text-shadow);
+            z-index: 10;
+        }
+
+        .sys-item {
+            background: rgba(0, 0, 0, 0.35);
+            padding: 12px 28px;
+            border-radius: 60px;
+            border: 2px solid rgba(255,255,255,0.05);
+            font-weight: 500;
+        }
+
+        #liveClock { font-size: var(--size-clock); font-weight: 700; letter-spacing: 1px; }
+        #liveDate { font-size: var(--size-date); color: #CBD5E1; }
+        #weatherDisplay { font-size: var(--size-weather); color: #94A3B8; }
+
+        /* --- Core Timer Presentation Layer --- */
+        .timer-container {
+            position: relative;
+            z-index: 5;
+        }
+
+        .phase-label {
+            font-size: var(--size-label);
+            font-weight: 800;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            text-shadow: var(--text-shadow);
+            transition: color 0.3s ease;
+            color: var(--focus-color);
+        }
+
+        .timer-display {
+            font-size: var(--size-timer);
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            margin: 10px 0;
+            text-shadow: var(--text-shadow);
+        }
+
+        /* --- Progress Tracking Engines --- */
+        .progress-wrapper {
+            position: relative;
+            width: 560px;  
+            height: 560px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .ring-svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .ring-svg circle {
+            fill: transparent;
+            stroke-width: 16; 
+        }
+
+        .ring-bg { stroke: rgba(255, 255, 255, 0.06); }
+        
+        .ring-fill {
+            stroke: var(--focus-color);
+            stroke-linecap: round;
+            transition: stroke 0.4s ease; 
+        }
+
+        /* Continuous Multi-Hour Macro Progression Timeline */
+        .macro-timeline-container {
+            width: 85%;
+            background: rgba(255,255,255,0.08);
+            height: 12px;
+            border-radius: 20px;
+            margin: 30px auto 10px auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .macro-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3B82F6, #10B981, #EF4444);
+            border-radius: 20px;
+            transition: width 0.1s linear; 
+        }
+
+        .counter-status-text {
+            font-size: var(--size-counter);
+            font-weight: 500;
+            color: #94A3B8;
+            margin-top: 8px;
+            text-shadow: var(--text-shadow);
+        }
+
+        /* ==========================================================================
+           3. INTERACTION & CONTROL OVERLAY
+           ========================================================================== */
+        .control-overlay {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 640px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 20;
+        }
+
+        .widget-frame:hover .control-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn {
+            font-family: var(--font-family);
+            font-size: var(--size-buttons);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 16px 28px;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            color: #FFF;
+            transition: all 0.2s ease;
+            flex: 1;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-toggle { background: #10B981; }
+        .btn-toggle.paused { background: #F59E0B; }
+        .btn-skip { background: #4B5563; }
+        .btn-reset { background: #EF4444; }
+        .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+        .config-form {
+            background: rgba(0,0,0,0.4);
+            padding: 24px;
+            border-radius: 28px;
+            border: 2px solid rgba(255,255,255,0.06);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            text-align: left;
+        }
+
+        .config-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .config-group label {
+            font-size: 18px;
+            font-weight: 700;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .config-group input {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 10px 16px;
+            color: white;
+            font-size: var(--size-inputs);
+            font-family: var(--font-family);
+            font-weight: 600;
+            width: 100%;
+        }
+        
+        .config-group input:focus {
+            outline: none;
+            border-color: #3B82F6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="widget-frame" id="mainFrame">
+        
+        <div class="system-bar">
+            <div class="sys-item" id="liveClock">00:00:00</div>
+            <div class="sys-item" id="liveDate">Loading...</div>
+            <div class="sys-item" id="weatherDisplay">--°C / --°F</div>
+        </div>
+
+        <div class="timer-container">
+            <div class="phase-label" id="phaseLabel">FOCUS</div>
+            
+            <div class="progress-wrapper">
+                <svg class="ring-svg" viewBox="0 0 560 560">
+                    <circle class="ring-bg" cx="280" cy="280" r="270"></circle>
+                    <circle class="ring-fill" id="ringFill" cx="280" cy="280" r="270"></circle>
+                </svg>
+                <div class="timer-display" id="timerDisplay">25:00</div>
+            </div>
+        </div>
+
+        <div class="macro-timeline-container">
+            <div class="macro-bar-fill" id="macroBar"></div>
+        </div>
+        <div class="counter-status-text" id="counterStatus">Pomos: 0/4 | Breaks: 0/4</div>
+
+        <div class="control-overlay">
+            <div class="action-row">
+                <button class="btn btn-toggle" id="toggleBtn">START</button>
+                <button class="btn btn-skip" id="skipBtn">SKIP</button>
+                <button class="btn btn-reset" id="resetBtn">RESET</button>
+            </div>
+            
+            <div class="config-form">
+                <div class="config-group">
+                    <label>Focus (Mins)</label>
+                    <input type="number" id="inputFocus" min="1" value="25">
+                </div>
+                <div class="config-group">
+                    <label>Short Break (Mins)</label>
+                    <input type="number" id="inputShort" min="1" value="5">
+                </div>
+                <div class="config-group">
+                    <label>Long Break (Mins)</label>
+                    <input type="number" id="inputLong" min="1" value="15">
+                </div>
+                <div class="config-group">
+                    <label>Target Pomos</label>
+                    <input type="number" id="inputTargetPomos" min="1" value="4">
+                </div>
+                <div class="config-group">
+                    <label>Current Pomo</label>
+                    <input type="number" id="inputCurrentPomo" min="0" value="0">
+                </div>
+                <div class="config-group">
+                    <label>Current Break</label>
+                    <input type="number" id="inputCurrentBreak" min="0" value="0">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CENTRAL BEHAVIOR & AUTOMATION RULES CONFIGURATION ---
+        const CONFIG = {
+            // Options: 'circle', 'ellipse', 'triangle', 'quadrilateral'
+            widgetShape: 'quadrilateral', 
+
+            // Weather Geolocation Setup (Default Tracker: Vancouver Area)
+            lat: 49.2827,
+            lon: -123.1207,
+            weatherRefreshMinutes: 15,
+
+            // Clock Formats
+            clock24h: true,
+            showSeconds: true,
+
+            // Session Flow Mechanics
+            autoProceed: true,
+            shortBreaksBeforeLongBreak: 3, 
+
+            // Independent Local/Web System Notification Tracks
+            audio: {
+                focusStart: '',
+                focusEnd: '',
+                shortBreakStart: '',
+                shortBreakEnd: '',
+                longBreakStart: '',
+                longBreakEnd: '',
+                finalPomoStart: '',
+                finalPomoEnd: ''
+            }
+        };
+
+        class StreamWidgetEngine {
+            constructor() {
+                this.durations = {
+                    'FOCUS': parseInt(document.getElementById('inputFocus').value) * 60,
+                    'SHORT BREAK': parseInt(document.getElementById('inputShort').value) * 60,
+                    'LONG BREAK': parseInt(document.getElementById('inputLong').value) * 60
+                };
+
+                this.currentPhase = 'FOCUS';
+                this.remainingSeconds = this.durations['FOCUS'];
+                this.isRunning = false;
+                
+                this.pomoCurrent = 0;
+                this.pomoTarget = parseInt(document.getElementById('inputTargetPomos').value);
+                this.breakCurrent = 0;
+                
+                this.lastTimestamp = null;
+                this.circumference = 2 * Math.PI * 270; // Fixed 4K Radius Math Vector
+
+                this.initializeEngineDOM();
+                this.bindInteractionControls();
+                this.bootSystemClock();
+                this.bootWeatherTracker();
+                
+                this.ringFill.style.strokeDasharray = this.circumference;
+                this.ringFill.style.strokeDashoffset = this.circumference;
+
+                requestAnimationFrame((t) => this.renderFrameLoop(t));
+            }
+
+            initializeEngineDOM() {
+                this.frame = document.getElementById('mainFrame');
+                this.phaseLabel = document.getElementById('phaseLabel');
+                this.timerDisplay = document.getElementById('timerDisplay');
+                this.ringFill = document.getElementById('ringFill');
+                this.macroBar = document.getElementById('macroBar');
+                this.counterStatus = document.getElementById('counterStatus');
+                this.toggleBtn = document.getElementById('toggleBtn');
+                
+                this.frame.className = `widget-frame shape-${CONFIG.widgetShape}`;
+            }
+
+            bindInteractionControls() {
+                document.getElementById('toggleBtn').addEventListener('click', () => this.toggleExecution());
+                document.getElementById('skipBtn').addEventListener('click', () => this.executePhaseShift(true));
+                document.getElementById('resetBtn').addEventListener('click', () => this.resetWholeEngine());
+
+                const bindInput = (id, callback) => {
+                    document.getElementById(id).addEventListener('input', (e) => {
+                        let val = parseInt(e.target.value) || 0;
+                        if(val < 0) val = 0;
+                        callback(val);
+                    });
+                };
+
+                bindInput('inputFocus', (v) => { this.durations['FOCUS'] = v * 60; this.recalculateCurrentBounds(); });
+                bindInput('inputShort', (v) => { this.durations['SHORT BREAK'] = v * 60; this.recalculateCurrentBounds(); });
+                bindInput('inputLong', (v) => { this.durations['LONG BREAK'] = v * 60; this.recalculateCurrentBounds(); });
+                bindInput('inputTargetPomos', (v) => { this.pomoTarget = v; this.updateStatusFields(); });
+                bindInput('inputCurrentPomo', (v) => { this.pomoCurrent = v; this.updateStatusFields(); });
+                bindInput('inputCurrentBreak', (v) => { this.breakCurrent = v; this.updateStatusFields(); });
+            }
+
+            recalculateCurrentBounds() {
+                if(!this.isRunning) {
+                    this.remainingSeconds = this.durations[this.currentPhase];
+                }
+            }
+
+            updateStatusFields() {
+                document.getElementById('inputCurrentPomo').value = this.pomoCurrent;
+                document.getElementById('inputCurrentBreak').value = this.breakCurrent;
+                document.getElementById('inputTargetPomos').value = this.pomoTarget;
+                
+                const targetBreaks = Math.max(0, this.pomoTarget); 
+                this.counterStatus.textContent = `Pomos: ${this.pomoCurrent}/${this.pomoTarget} | Breaks: ${this.breakCurrent}/${targetBreaks}`;
+            }
+
+            toggleExecution() {
+                if (this.isRunning) {
+                    this.isRunning = false;
+                    this.toggleBtn.textContent = 'START';
+                    this.toggleBtn.className = 'btn btn-toggle';
+                    this.lastTimestamp = null;
+                } else {
+                    this.playSound('start');
+                    this.isRunning = true;
+                    this.toggleBtn.textContent = 'PAUSE';
+                    this.toggleBtn.className = 'btn btn-toggle paused';
+                }
+            }
+
+            resetWholeEngine() {
+                this.isRunning = false;
+                this.currentPhase = 'FOCUS';
+                this.recalculateCurrentBounds();
+                this.pomoCurrent = 0;
+                this.breakCurrent = 0;
+                this.toggleBtn.textContent = 'START';
+                this.toggleBtn.className = 'btn btn-toggle';
+                this.lastTimestamp = null;
+                this.updateStatusFields();
+                this.updatePhaseVisuals();
+            }
+
+            bootSystemClock() {
+                const buildOrdinal = (d) => {
+                    if (d > 3 && d < 21) return 'th';
+                    switch (d % 10) {
+                        case 1:  return "st";
+                        case 2:  return "nd";
+                        case 3:  return "rd";
+                        default: return "th";
+                    }
+                };
+
+                const updateClock = () => {
+                    const now = new Date();
+                    const timeOptions = {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: CONFIG.showSeconds ? '2-digit' : undefined,
+                        hour12: !CONFIG.clock24h
+                    };
+                    document.getElementById('liveClock').textContent = now.toLocaleTimeString([], timeOptions);
+
+                    const dayName = now.toLocaleDateString([], { weekday: 'long' });
+                    const monthName = now.toLocaleDateString([], { month: 'long' });
+                    const dateNum = now.getDate();
+                    document.getElementById('liveDate').textContent = `${dayName}, ${monthName} ${dateNum}${buildOrdinal(dateNum)}`;
+                };
+                
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+
+            async bootWeatherTracker() {
+                const fetchWeather = async () => {
+                    try {
+                        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${CONFIG.lat}&longitude=${CONFIG.lon}&current=temperature_2m,weather_code`);
+                        const data = await res.json();
+                        if (data && data.current) {
+                            const cels = Math.round(data.current.temperature_2m);
+                            const fahr = Math.round((cels * 9/5) + 32);
+                            const code = data.current.weather_code;
+                            
+                            let cond = "Clear";
+                            if (code > 0 && code <= 3) cond = "Cloudy";
+                            else if (code >= 51 && code <= 67) cond = "Rainy";
+                            else if (code >= 71 && code <= 77) cond = "Snowy";
+                            else if (code >= 80) cond = "Showers";
+
+                            document.getElementById('weatherDisplay').textContent = `${cond} ${cels}°C / ${fahr}°F`;
+                        }
+                    } catch (e) {
+                        document.getElementById('weatherDisplay').textContent = "Weather Offline";
+                    }
+                };
+                fetchWeather();
+                setInterval(fetchWeather, CONFIG.weatherRefreshMinutes * 60 * 1000);
+            }
+
+            executePhaseShift(wasManualSkipped = false) {
+                this.playSound('end');
+
+                if (!wasManualSkipped) {
+                    if (this.currentPhase === 'FOCUS') {
+                        this.pomoCurrent++;
+                        if (this.pomoCurrent % (CONFIG.shortBreaksBeforeLongBreak + 1) === 0) {
+                            this.currentPhase = 'LONG BREAK';
+                        } else {
+                            this.currentPhase = 'SHORT BREAK';
+                        }
+                    } else {
+                        this.breakCurrent++;
+                        this.currentPhase = 'FOCUS';
+                    }
+                } else {
+                    if (this.currentPhase === 'FOCUS') {
+                        this.currentPhase = 'SHORT BREAK';
+                    } else if (this.currentPhase === 'SHORT BREAK') {
+                        this.currentPhase = 'LONG BREAK';
+                    } else {
+                        this.currentPhase = 'FOCUS';
+                    }
+                }
+
+                this.remainingSeconds = this.durations[this.currentPhase];
+                this.updateStatusFields();
+                this.updatePhaseVisuals();
+
+                if (!CONFIG.autoProceed && !wasManualSkipped) {
+                    this.isRunning = false;
+                    this.toggleBtn.textContent = 'START';
+                    this.toggleBtn.className = 'btn btn-toggle';
+                    this.lastTimestamp = null;
+                } else if (this.isRunning) {
+                    this.playSound('start');
+                }
+            }
+
+            updatePhaseVisuals() {
+                this.phaseLabel.textContent = this.currentPhase;
+                
+                let stateColor = 'var(--focus-color)';
+                if (this.currentPhase === 'SHORT BREAK') stateColor = 'var(--short-break-color)';
+                if (this.currentPhase === 'LONG BREAK') stateColor = 'var(--long-break-color)';
+                
+                this.phaseLabel.style.color = stateColor;
+                this.ringFill.style.stroke = stateColor;
+            }
+
+            playSound(type) {
+                let track = '';
+                const isFinal = (this.pomoCurrent === this.pomoTarget - 1 && this.currentPhase === 'FOCUS');
+
+                if (type === 'start') {
+                    if (isFinal && CONFIG.audio.finalPomoStart) track = CONFIG.audio.finalPomoStart;
+                    else if (this.currentPhase === 'FOCUS') track = CONFIG.audio.focusStart;
+                    else if (this.currentPhase === 'SHORT BREAK') track = CONFIG.audio.shortBreakStart;
+                    else if (this.currentPhase === 'LONG BREAK') track = CONFIG.audio.longBreakStart;
+                } else {
+                    if (isFinal && CONFIG.audio.finalPomoEnd) track = CONFIG.audio.finalPomoEnd;
+                    else if (this.currentPhase === 'FOCUS') track = CONFIG.audio.focusEnd;
+                    else if (this.currentPhase === 'SHORT BREAK') track = CONFIG.audio.shortBreakEnd;
+                    else if (this.currentPhase === 'LONG BREAK') track = CONFIG.audio.longBreakEnd;
+                }
+
+                if (track) {
+                    const audio = new Audio(track);
+                    audio.play().catch(() => {});
+                }
+            }
+
+            renderFrameLoop(timestamp) {
+                if (!this.lastTimestamp) this.lastTimestamp = timestamp;
+                const elapsedDelta = (timestamp - this.lastTimestamp) / 1000;
+
+                if (this.isRunning) {
+                    this.remainingSeconds -= elapsedDelta;
+                    if (this.remainingSeconds <= 0) {
+                        this.remainingSeconds = 0;
+                        this.executePhaseShift(false);
+                    }
+                }
+                this.lastTimestamp = timestamp;
+
+                const visualSecs = Math.max(0, this.remainingSeconds);
+                const displayMins = Math.floor(visualSecs / 60).toString().padStart(2, '0');
+                const displaySecs = Math.floor(visualSecs % 60).toString().padStart(2, '0');
+                this.timerDisplay.textContent = `${displayMins}:${displaySecs}`;
+
+                const activeTotalTime = this.durations[this.currentPhase] || 1;
+                const microPercent = (activeTotalTime - visualSecs) / activeTotalTime;
+                this.ringFill.style.strokeDashoffset = this.circumference - (microPercent * this.circumference);
+
+                const numShort = CONFIG.shortBreaksBeforeLongBreak;
+                const totalCycleSessions = numShort + 1; 
+                
+                const singleFocus = this.durations['FOCUS'];
+                const singleShort = this.durations['SHORT BREAK'];
+                const singleLong = this.durations['LONG BREAK'];
+
+                const macroTotalBlockDuration = (totalCycleSessions * singleFocus) + (numShort * singleShort) + singleLong;
+
+                let elapsedBlockSeconds = 0;
+                const activeCyclePosition = this.pomoCurrent % totalCycleSessions;
+
+                if (this.currentPhase === 'FOCUS') {
+                    elapsedBlockSeconds = activeCyclePosition * (singleFocus + singleShort) + (singleFocus - visualSecs);
+                } else if (this.currentPhase === 'SHORT BREAK') {
+                    elapsedBlockSeconds = (activeCyclePosition * (singleFocus + singleShort)) + singleFocus + (singleShort - visualSecs);
+                } else if (this.currentPhase === 'LONG BREAK') {
+                    elapsedBlockSeconds = (numShort * (singleFocus + singleShort)) + singleFocus + (singleLong - visualSecs);
+                }
+
+                const macroPercent = Math.min(1, Math.max(0, elapsedBlockSeconds / macroTotalBlockDuration));
+                this.macroBar.style.width = `${macroPercent * 100}%`;
+
+                requestAnimationFrame((t) => this.renderFrameLoop(t));
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.WidgetEngineInstance = new StreamWidgetEngine();
+            window.WidgetEngineInstance.updateStatusFields();
+            window.WidgetEngineInstance.updatePhaseVisuals();
+        });
+    </script>
+</body>
+</html>
